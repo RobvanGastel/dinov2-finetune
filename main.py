@@ -78,14 +78,14 @@ def finetune_dino(config, encoder):
         if epoch % 2 == 0:
             validate_epoch(dino_lora, val_loader, criterion, f_iou, metrics)
             logging.info(
-                f"Epoch: {epoch} - val IoU: {metrics["val_iou"][-1]} "
-                f"- val loss {metrics["val_loss"][-1]}"
+                f"Epoch: {epoch} - val IoU: {metrics['val_iou'][-1]} "
+                f"- val loss {metrics['val_loss'][-1]}"
             )
 
     # Log metrics & save model
-    torch.save(dino_lora.state_dict(), f"{config.exp_name}.pt")
+    torch.save(dino_lora.state_dict(), f"output/{config.exp_name}.pt")
 
-    with open(f"{config.exp_name}_metrics.json", "w") as f:
+    with open(f"output/{config.exp_name}_metrics.json", "w") as f:
         json.dump(metrics, f)
 
 
