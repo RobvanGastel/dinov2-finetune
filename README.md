@@ -7,7 +7,7 @@ Install the packages using the `requirements.txt` file.
 
 ```bash
 # using conda
-conda create --name meta_rl --file requirements.txt
+conda create --name dino --file requirements.txt
 # Or pip
 pip install requirements.txt
 ```
