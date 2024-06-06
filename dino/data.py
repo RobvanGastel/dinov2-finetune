@@ -83,15 +83,23 @@ class PascalVOCDataset(VOCSegmentation):
 
 
 def load_voc_dataloader(img_dim=(490, 490), batch_size=6):
-    # Transformation pipeline
     transform = A.Compose([A.Resize(height=img_dim[0], width=img_dim[1])])
 
-    dataset = PascalVOCDataset(
+    train_dataset = PascalVOCDataset(
         root="./data",
         year="2012",
         image_set="train",
         download=False,
         transform=transform,
     )
-    dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
-    return dataloader
+    val_dataset = PascalVOCDataset(
+        root="./data",
+        year="2012",
+        image_set="train",
+        download=False,
+        transform=transform,
+    )
+
+    train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
+    val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=True)
+    return train_loader, val_loader

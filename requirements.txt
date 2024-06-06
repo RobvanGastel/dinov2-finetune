@@ -2,3 +2,7 @@
 torch==2.0.0
 torchvision==0.15.0
 torchmetrics==0.10.3
+matplotlib
+albumentations
+opencv-python
+black
