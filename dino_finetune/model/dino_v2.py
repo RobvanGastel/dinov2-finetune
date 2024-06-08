@@ -2,7 +2,7 @@ import math
 import torch.nn as nn
 
 from .lora import LoRA
-from .decoders import LinearClassifier
+from .linear_decoder import LinearClassifier
 
 
 class DINOV2EncoderLoRA(nn.Module):
@@ -77,7 +77,7 @@ class DINOV2EncoderLoRA(nn.Module):
         for w_B in self.w_Bs:
             nn.init.zeros_(w_B.weight)
 
-    def forward(self, x, depth_gt=None):
+    def forward(self, x, return_patches=False):
         feature = self.encoder.forward_features(x)
 
         # get the patch embeddings - so we exclude the CLS token
@@ -89,4 +89,7 @@ class DINOV2EncoderLoRA(nn.Module):
             mode="bilinear",
             align_corners=False,
         )
+
+        if return_patches:
+            return logits, patch_embeddings
         return logits

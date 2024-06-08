@@ -4,10 +4,7 @@ import matplotlib.pyplot as plt
 
 def visualize_overlay(images, masks, n_classes, filename="viz"):
     colormap = plt.colormaps["tab20"]
-    colors = (
-        np.array([colormap(i / n_classes) for i in range(n_classes)])[:, :3]
-        * 255
-    )
+    colors = np.array([colormap(i / n_classes) for i in range(n_classes)])[:, :3] * 255
 
     img = images[0].cpu().numpy().transpose(1, 2, 0)  # (H, W, C)
     mask = masks[0].detach().cpu().numpy()  # (C, H, W)
