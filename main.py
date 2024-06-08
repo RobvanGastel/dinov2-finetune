@@ -5,10 +5,9 @@ import argparse
 import torch
 import torch.nn as nn
 import torch.optim as optim
-import torch.nn.functional as F
 from torchmetrics.classification import JaccardIndex
 
-from dino import DINOV2EncoderLoRA, load_voc_dataloader
+from dino_finetune import DINOV2EncoderLoRA, load_voc_dataloader
 
 
 def validate_epoch(dino_lora, val_loader, criterion, f_iou, metrics):
@@ -124,7 +123,6 @@ if __name__ == "__main__":
     parser.add_argument(
         "--use_lora",
         action="store_true",
-        default=True,
         help="Use LoRA",
     )
     parser.add_argument(

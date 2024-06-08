@@ -5,4 +5,3 @@ torchmetrics==0.10.3
 matplotlib
 albumentations
 opencv-python
-black
