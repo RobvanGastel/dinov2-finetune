@@ -3,8 +3,7 @@ import torch.nn as nn
 
 
 class LoRA(nn.Module):
-    """LoRA for Q, K, V
-    """
+    """LoRA for Q, K, V"""
 
     def __init__(
         self,

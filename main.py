@@ -7,7 +7,7 @@ import torch.nn as nn
 import torch.optim as optim
 from torchmetrics.classification import JaccardIndex
 
-from dino_finetune import DINOV2EncoderLoRA, load_voc_dataloader
+from dino_finetune import DINOV2EncoderLoRA, get_dataloader
 
 
 def validate_epoch(dino_lora, val_loader, criterion, f_iou, metrics):
@@ -18,21 +18,21 @@ def validate_epoch(dino_lora, val_loader, criterion, f_iou, metrics):
     with torch.no_grad():
         for images, masks in val_loader:
             images = images.float().cuda()
-            masks = masks.float().cuda()
+            masks = masks.long().cuda()
 
             logits = dino_lora(images)
             loss = criterion(logits, masks)
             val_loss += loss.item()
 
             y_hat = torch.sigmoid(logits)
-            iou_score = f_iou(y_hat, torch.argmax(masks, dim=1).int())
+            iou_score = f_iou(y_hat, masks.int())
             val_iou += iou_score.item()
 
     metrics["val_loss"].append(val_loss / len(val_loader))
     metrics["val_iou"].append(val_iou / len(val_loader))
 
 
-def finetune_dino(config, encoder):
+def finetune_dino(config: argparse.Namespace, encoder: nn.Module):
     dino_lora = DINOV2EncoderLoRA(
         encoder=encoder,
         r=config.r,
@@ -43,12 +43,12 @@ def finetune_dino(config, encoder):
         use_lora=config.use_lora,
     ).cuda()
 
-    train_loader, val_loader = load_voc_dataloader(
-        img_dim=config.img_dim, batch_size=config.batch_size
+    train_loader, val_loader = get_dataloader(
+        config.dataset, img_dim=config.img_dim, batch_size=config.batch_size
     )
 
     # Finetuning for segmentation
-    criterion = nn.BCEWithLogitsLoss().cuda()
+    criterion = nn.CrossEntropyLoss(ignore_index=255).cuda()
     f_iou = JaccardIndex(task="multiclass", num_classes=config.n_classes).cuda()
     optimizer = optim.AdamW(dino_lora.parameters(), lr=config.lr)
 
@@ -64,8 +64,7 @@ def finetune_dino(config, encoder):
 
         for images, masks in train_loader:
             images = images.float().cuda()
-            masks = masks.float().cuda()
-
+            masks = masks.long().cuda()
             optimizer.zero_grad()
 
             logits = dino_lora(images)
@@ -115,10 +114,10 @@ if __name__ == "__main__":
         help="Finetuning batch size",
     )
     parser.add_argument(
-        "--n_classes",
-        type=int,
-        default=21,
-        help="Number of classes",
+        "--dataset",
+        type=str,
+        default="ade20k",
+        help="The dataset to finetune on, either `voc` or `ade20k`",
     )
     parser.add_argument(
         "--use_lora",
@@ -171,6 +170,13 @@ if __name__ == "__main__":
 
     # TODO: Only with multiscale decoder heads
     config.n = intermediate_layers[config.size]
+
+    # Dataset
+    dataset_classes = {
+        "voc": 21,
+        "ade20k": 150,
+    }
+    config.n_classes = dataset_classes[config.dataset]
 
     encoder = torch.hub.load(
         repo_or_dir="facebookresearch/dinov2",

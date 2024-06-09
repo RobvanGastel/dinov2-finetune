@@ -1,4 +1,7 @@
 import math
+from typing import Optional
+
+import torch
 import torch.nn as nn
 
 from .lora import LoRA
@@ -9,13 +12,13 @@ class DINOV2EncoderLoRA(nn.Module):
     def __init__(
         self,
         encoder,
-        r=4,
-        n=None,
-        n_classes=1000,
-        decoder_dim=1024,
-        emb_dim=1024,
-        img_dim=(520, 520),
-        use_lora=False,
+        r: int = 4,
+        n: Optional[int] = None,
+        n_classes: int = 1000,
+        decoder_dim: int = 1024,
+        emb_dim: int = 1024,
+        img_dim: tuple[int, int] = (520, 520),
+        use_lora: bool = False,
     ):
         super().__init__()
 
@@ -66,7 +69,7 @@ class DINOV2EncoderLoRA(nn.Module):
                 )
             self.reset_parameters()
 
-    def _create_lora_layer(self, dim, r):
+    def _create_lora_layer(self, dim: int, r: int):
         w_a = nn.Linear(dim, r, bias=False)
         w_b = nn.Linear(r, dim, bias=False)
         return w_a, w_b
@@ -77,7 +80,7 @@ class DINOV2EncoderLoRA(nn.Module):
         for w_B in self.w_Bs:
             nn.init.zeros_(w_B.weight)
 
-    def forward(self, x, return_patches=False):
+    def forward(self, x: torch.Tensor, return_patches: bool = False):
         feature = self.encoder.forward_features(x)
 
         # get the patch embeddings - so we exclude the CLS token

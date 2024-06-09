@@ -1,8 +1,11 @@
+import torch
 import numpy as np
 import matplotlib.pyplot as plt
 
 
-def visualize_overlay(images, masks, n_classes, filename="viz"):
+def visualize_overlay(
+    images: torch.Tensor, masks: torch.Tensor, n_classes: int, filename="viz"
+):
     colormap = plt.colormaps["tab20"]
     colors = np.array([colormap(i / n_classes) for i in range(n_classes)])[:, :3] * 255
 
