@@ -5,9 +5,9 @@ import argparse
 import torch
 import torch.nn as nn
 import torch.optim as optim
-from torchmetrics.classification import JaccardIndex
+from torchmetrics.classification import JaccardIndex as IoU
 
-from dino_finetune import DINOV2EncoderLoRA, get_dataloader
+from dino_finetune import DINOV2EncoderLoRA, get_dataloader, visualize_overlay
 
 
 def validate_epoch(dino_lora, val_loader, criterion, f_iou, metrics):
@@ -24,7 +24,8 @@ def validate_epoch(dino_lora, val_loader, criterion, f_iou, metrics):
             loss = criterion(logits, masks)
             val_loss += loss.item()
 
-            y_hat = torch.sigmoid(logits)
+            y_hat = torch.softmax(logits, dim=1)
+            y_hat = torch.argmax(y_hat, dim=1)
             iou_score = f_iou(y_hat, masks.int())
             val_iou += iou_score.item()
 
@@ -49,7 +50,9 @@ def finetune_dino(config: argparse.Namespace, encoder: nn.Module):
 
     # Finetuning for segmentation
     criterion = nn.CrossEntropyLoss(ignore_index=255).cuda()
-    f_iou = JaccardIndex(task="multiclass", num_classes=config.n_classes).cuda()
+    f_iou = IoU(
+        task="multiclass", num_classes=config.n_classes, ignore_index=255
+    ).cuda()
     optimizer = optim.AdamW(dino_lora.parameters(), lr=config.lr)
 
     # Log training and validation metrics
@@ -73,7 +76,10 @@ def finetune_dino(config: argparse.Namespace, encoder: nn.Module):
             loss.backward()
             optimizer.step()
 
-        if epoch % 2 == 0:
+        if epoch % 1 == 0:
+            visualize_overlay(
+                images, torch.sigmoid(logits), config.n_classes, filename=f"viz_{epoch}"
+            )
             validate_epoch(dino_lora, val_loader, criterion, f_iou, metrics)
             logging.info(
                 f"Epoch: {epoch} - val IoU: {metrics['val_iou'][-1]} "
@@ -81,6 +87,7 @@ def finetune_dino(config: argparse.Namespace, encoder: nn.Module):
             )
 
     # Log metrics & save model
+    # TODO: Save only loRA tensors and classifer, and load only loRA and classifer
     torch.save(dino_lora.state_dict(), f"output/{config.exp_name}.pt")
 
     with open(f"output/{config.exp_name}_metrics.json", "w") as f:

@@ -15,13 +15,12 @@ class DINOV2EncoderLoRA(nn.Module):
         r: int = 4,
         n: Optional[int] = None,
         n_classes: int = 1000,
-        decoder_dim: int = 1024,
         emb_dim: int = 1024,
         img_dim: tuple[int, int] = (520, 520),
         use_lora: bool = False,
     ):
         super().__init__()
-
+        assert img_dim[0] % encoder.patch_size == 0, "Wrong input shape for patches"
         assert r > 0
 
         self.n = n
@@ -37,9 +36,9 @@ class DINOV2EncoderLoRA(nn.Module):
         # Decoder
         # Patch size is given by (490/14)**2 = 35 * 35
         self.decoder = LinearClassifier(
-            decoder_dim,
-            patch_h=35,
-            patch_w=35,
+            emb_dim,
+            patch_h=int(img_dim[0] / encoder.patch_size),
+            patch_w=int(img_dim[1] / encoder.patch_size),
             n_classes=n_classes,
         )
 
