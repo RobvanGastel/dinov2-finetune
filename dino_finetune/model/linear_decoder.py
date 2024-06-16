@@ -1,3 +1,4 @@
+import torch
 import torch.nn as nn
 
 
@@ -15,7 +16,7 @@ class LinearClassifier(nn.Module):
         self.height = patch_h
         self.classifier = nn.Conv2d(channels, n_classes, (1, 1))
 
-    def forward(self, embeddings):
+    def forward(self, embeddings: torch.Tensor) -> torch.Tensor:
         embeddings = embeddings.reshape(-1, self.height, self.width, self.channels)
         embeddings = embeddings.permute(0, 3, 1, 2)
         return self.classifier(embeddings)

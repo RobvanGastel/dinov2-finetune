@@ -8,7 +8,7 @@ def visualize_overlay(
     masks: torch.Tensor,
     n_classes: int,
     filename="viz",
-):
+) -> None:
     colormap = plt.colormaps["tab20"]
     colors = np.array([colormap(i / n_classes) for i in range(n_classes)])[:, :3] * 255
 

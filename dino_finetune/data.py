@@ -2,6 +2,7 @@ import os
 import zipfile
 import logging
 import urllib.request
+from typing import Optional
 
 import cv2
 import numpy as np
@@ -39,12 +40,12 @@ VOC_COLORMAP = [
 class PascalVOCDataset(VOCSegmentation):
     def __init__(
         self,
-        root="./data",
-        year="2012",
-        image_set="train",
-        download=True,
-        transform=None,
-        use_index_label=True,
+        root: str = "./data",
+        year: str = "2012",
+        image_set: str = "train",
+        download: bool = True,
+        transform: Optional[A.Compose] = None,
+        use_index_label: bool = True,
     ):
         super().__init__(
             root=root,
@@ -58,7 +59,9 @@ class PascalVOCDataset(VOCSegmentation):
         self.use_index_label = use_index_label
 
     @staticmethod
-    def _convert_to_segmentation_mask(mask, use_index_label=True):
+    def _convert_to_segmentation_mask(
+        mask: np.ndarray, use_index_label: bool = True
+    ) -> np.ndarray:
         height, width = mask.shape[:2]
         segmentation_mask = np.zeros(
             (height, width, len(VOC_COLORMAP)),
@@ -73,7 +76,7 @@ class PascalVOCDataset(VOCSegmentation):
             segmentation_mask = np.argmax(segmentation_mask, axis=-1)
         return segmentation_mask
 
-    def __getitem__(self, index):
+    def __getitem__(self, index: int) -> tuple[np.ndarray, np.ndarray]:
         image = cv2.imread(self.images[index])
         mask = cv2.imread(self.masks[index])
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
@@ -91,7 +94,12 @@ class PascalVOCDataset(VOCSegmentation):
 
 
 class ADE20kDataset(Dataset):
-    def __init__(self, root, split="training", transform=None):
+    def __init__(
+        self,
+        root: str,
+        split: str = "training",
+        transform: Optional[A.Compose] = None,
+    ):
         self.root = root
         self.split = split
         self.n_classes = 150
@@ -107,7 +115,7 @@ class ADE20kDataset(Dataset):
 
         self.image_files = os.listdir(self.images_dir)
 
-    def download_and_extract_dataset(self):
+    def download_and_extract_dataset(self) -> None:
         dataset_url = (
             "http://data.csail.mit.edu/places/ADEchallenge/ADEChallengeData2016.zip"
         )
@@ -124,10 +132,10 @@ class ADE20kDataset(Dataset):
         logging.info("Dataset extracted!")
         os.remove(zip_path)
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self.image_files)
 
-    def __getitem__(self, index):
+    def __getitem__(self, index: int) -> tuple[np.ndarray, np.ndarray]:
         img_name = self.image_files[index]
         img_path = os.path.join(self.images_dir, img_name)
         mask_path = os.path.join(self.masks_dir, img_name.replace(".jpg", ".png"))
@@ -149,7 +157,7 @@ def get_dataloader(
     dataset_name: str,
     img_dim: tuple[int, int] = (490, 490),
     batch_size: int = 6,
-):
+) -> tuple[DataLoader, DataLoader]:
     assert dataset_name in ["ade20k", "voc"], "dataset name not in [ade20k, voc]"
     transform = A.Compose([A.Resize(height=img_dim[0], width=img_dim[1])])
 
