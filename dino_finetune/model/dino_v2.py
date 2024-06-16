@@ -77,7 +77,7 @@ class DINOV2EncoderLoRA(nn.Module):
         for w_a in self.w_a:
             nn.init.kaiming_uniform_(w_a.weight, a=math.sqrt(5))
         for w_b in self.w_b:
-            nn.init.zeros_(w_a.weight)
+            nn.init.zeros_(w_b.weight)
 
     def forward(self, x: torch.Tensor, return_patches: bool = False) -> torch.Tensor:
         feature = self.encoder.forward_features(x)
