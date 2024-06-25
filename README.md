@@ -1,6 +1,8 @@
 # DINOv2 Finetuning
 This repository explores fine-tuning DINOv2 (Oquab et al., 2024) encoder weights using LoRA (Low-Rank Adaptation). The approach enhances the adaptation of the DINOv2 encoder for different downstream tasks with LoRA and a linear (1x1) convolutional head. Additionally, the DINOv2 encoder produces high-quality features making finetuning to new downstream tasks much easier. By applying PCA to the encoder features we can already get a coarse segmentation of the foreground object in the image.
 
+Check out the Explanation.ipynb notebook for a more detailed walkthrough of the code.
+
 ![](pca.png?raw=true)
 
 ## Setup
