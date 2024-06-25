@@ -44,6 +44,9 @@ def finetune_dino(config: argparse.Namespace, encoder: nn.Module):
         use_lora=config.use_lora,
     ).cuda()
 
+    if config.lora_weights:
+        dino_lora.load_parameters(config.lora_weights)
+
     train_loader, val_loader = get_dataloader(
         config.dataset, img_dim=config.img_dim, batch_size=config.batch_size
     )
@@ -87,8 +90,8 @@ def finetune_dino(config: argparse.Namespace, encoder: nn.Module):
             )
 
     # Log metrics & save model
-    # TODO: Save only loRA tensors and classifer, and load only loRA and classifer
-    torch.save(dino_lora.state_dict(), f"output/{config.exp_name}.pt")
+    # Saves only loRA parameters and classifer
+    dino_lora.save_parameters(f"output/{config.exp_name}.pt")
 
     with open(f"output/{config.exp_name}_metrics.json", "w") as f:
         json.dump(metrics, f)
@@ -137,6 +140,12 @@ if __name__ == "__main__":
         nargs=2,
         default=(490, 490),
         help="Image dimensions (width height)",
+    )
+    parser.add_argument(
+        "--lora_weights",
+        type=str,
+        default=None,
+        help="Load the LoRA weights from file location",
     )
 
     # Decoder parameters

@@ -104,3 +104,30 @@ class DINOV2EncoderLoRA(nn.Module):
 
         decoder_weights = self.decoder.state_dict()
         torch.save({**w_a, **w_b, **decoder_weights}, filename)
+
+    def load_parameters(self, filename: str) -> None:
+
+        state_dict = torch.load(filename)
+
+        for i, w_A_linear in enumerate(self.w_a):
+            saved_key = f"w_a_{i:03d}"
+            saved_tensor = state_dict[saved_key]
+            w_A_linear.weight = nn.Parameter(saved_tensor)
+
+        for i, w_B_linear in enumerate(self.w_b):
+            saved_key = f"w_b_{i:03d}"
+            saved_tensor = state_dict[saved_key]
+            w_B_linear.weight = nn.Parameter(saved_tensor)
+
+        decode_head_dict = self.decoder.state_dict()
+        decode_head_keys = decode_head_dict.keys()
+
+        # load decode head
+        decode_head_keys = [k for k in decode_head_keys]
+        decode_head_values = [state_dict[k] for k in decode_head_keys]
+        decode_head_new_state_dict = {
+            k: v for k, v in zip(decode_head_keys, decode_head_values)
+        }
+        decode_head_dict.update(decode_head_new_state_dict)
+
+        self.decoder.load_state_dict(decode_head_dict)
