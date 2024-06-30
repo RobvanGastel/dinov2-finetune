@@ -13,12 +13,29 @@ Install the packages using the `requirements.txt` file.
 conda create --name dino python=3.11
 conda activate dino
 conda install --file requirements.txt
-# Or pip
-pip install requirements.txt
+# Install the package with,
+pip install -e .
 ```
 
 ## Usage
-TODO
+An example to run finetuning on the VOC dataset with LoRA and the UperNet head.
+
+```bash
+python main.py --exp_name base_voc --dataset voc --size base --use_lora --img_dim 308 308 --epochs 50 --use_uper
+```
+
+**Flags**
+Some explanation of the more useful flags to use when running experiments.
+- --exp_name (str): The name of the experiment. This is used to identify the experiment and save results accordingly.
+- --dataset (str): The name of the dataset to use. either `voc` or `ade20k`
+- --size (str): The size configuration for the DINOv2 backbone parameter `small`, `base`, `large`, or `giant`
+- --r (int): the LoRA rank (r) parameter to determine the amount of parameters. Usually, a small value like 3-9.
+- --use_lora (flag): A boolean flag indicating whether to use Low-Rank Adaptation (LoRA). If this flag is present, LoRA is used. 
+- --lora_weights (str): Path to the file location to load the LoRA weights en decoder head from.
+- --img_dim (tuple of int): The dimensions of the input images (height width). This should be specified as two integers. Example: 308 308. 
+- --epochs (int): The number of training epochs. This determines how many times the model will pass through the entire training dataset. Example: 50. 
+
+There are some more unnamed parameters for training like the learning rate and batch size.
 
 ## Results
 TODO
