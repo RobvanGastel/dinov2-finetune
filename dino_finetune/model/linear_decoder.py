@@ -11,9 +11,9 @@ class LinearClassifier(nn.Module):
         n_classes: int = 1000,
     ):
         super().__init__()
-        self.channels = channels
         self.width = patch_w
         self.height = patch_h
+        self.channels = channels
         self.classifier = nn.Conv2d(channels, n_classes, (1, 1))
 
     def forward(self, embeddings: torch.Tensor) -> torch.Tensor:

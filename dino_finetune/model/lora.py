@@ -3,7 +3,7 @@ import torch.nn as nn
 
 
 class LoRA(nn.Module):
-    """LoRA for Q, K, V"""
+    """Low-Rank Adaptation for the for Query (Q), Key (Q), Value (V) matrices"""
 
     def __init__(
         self,
