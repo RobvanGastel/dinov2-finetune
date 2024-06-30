@@ -1,16 +1,24 @@
 import json
 import logging
 import argparse
+from typing import Callable
 
 import torch
 import torch.nn as nn
 import torch.optim as optim
+from torch.utils.data import DataLoader
 from torchmetrics.classification import JaccardIndex as IoU
 
 from dino_finetune import DINOV2EncoderLoRA, get_dataloader, visualize_overlay
 
 
-def validate_epoch(dino_lora, val_loader, criterion, f_iou, metrics):
+def validate_epoch(
+    dino_lora: nn.Module,
+    val_loader: DataLoader,
+    criterion: nn.CrossEntropyLoss,
+    f_iou: Callable,
+    metrics: dict,
+) -> None:
     val_loss = 0.0
     val_iou = 0.0
 
@@ -42,6 +50,7 @@ def finetune_dino(config: argparse.Namespace, encoder: nn.Module):
         img_dim=config.img_dim,
         n_classes=config.n_classes,
         use_lora=config.use_lora,
+        use_uper=config.use_uper,
     ).cuda()
 
     if config.lora_weights:
@@ -118,28 +127,21 @@ if __name__ == "__main__":
         help="DINOv2 backbone parameter [small, base, large, giant]",
     )
     parser.add_argument(
-        "--batch_size",
-        type=int,
-        default=12,
-        help="Finetuning batch size",
-    )
-    parser.add_argument(
-        "--dataset",
-        type=str,
-        default="ade20k",
-        help="The dataset to finetune on, either `voc` or `ade20k`",
-    )
-    parser.add_argument(
         "--use_lora",
         action="store_true",
-        help="Use LoRA",
+        help="Use Low-Rank Adaptation (LoRA) to finetune",
+    )
+    parser.add_argument(
+        "--use_uper",
+        action="store_true",
+        help="Use the UperNet head for finetuning",
     )
     parser.add_argument(
         "--img_dim",
         type=int,
         nargs=2,
         default=(490, 490),
-        help="Image dimensions (width height)",
+        help="Image dimensions (height width)",
     )
     parser.add_argument(
         "--lora_weights",
@@ -148,18 +150,30 @@ if __name__ == "__main__":
         help="Load the LoRA weights from file location",
     )
 
-    # Decoder parameters
+    # Training parameters
+    parser.add_argument(
+        "--dataset",
+        type=str,
+        default="ade20k",
+        help="The dataset to finetune on, either `voc` or `ade20k`",
+    )
     parser.add_argument(
         "--epochs",
         type=int,
         default=20,
-        help="Number of epochs",
+        help="Number of training epochs",
     )
     parser.add_argument(
         "--lr",
         type=float,
         default=3e-4,
         help="Learning rate",
+    )
+    parser.add_argument(
+        "--batch_size",
+        type=int,
+        default=12,
+        help="Finetuning batch size",
     )
     config = parser.parse_args()
 
