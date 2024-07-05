@@ -18,10 +18,10 @@ pip install -e .
 ```
 
 ## Usage
-An example to run finetuning on the VOC dataset with LoRA and the UperNet head.
+An example to run finetuning on the VOC dataset with LoRA and a FPN decoder.
 
 ```bash
-python main.py --exp_name base_voc --dataset voc --size base --use_lora --img_dim 308 308 --epochs 50 --use_uper
+python main.py --exp_name base_voc --dataset voc --size base --use_lora --img_dim 308 308 --epochs 50 --use_fpn
 ```
 
 **Flags**
@@ -31,6 +31,7 @@ Some explanation of the more useful flags to use when running experiments.
 - --size (str): The size configuration for the DINOv2 backbone parameter `small`, `base`, `large`, or `giant`
 - --r (int): the LoRA rank (r) parameter to determine the amount of parameters. Usually, a small value like 3-9.
 - --use_lora (flag): A boolean flag indicating whether to use Low-Rank Adaptation (LoRA). If this flag is present, LoRA is used. 
+- --use_fpn (flag): A boolean flag to indicate whether to use the FPN decoder.
 - --lora_weights (str): Path to the file location to load the LoRA weights en decoder head from.
 - --img_dim (tuple of int): The dimensions of the input images (height width). This should be specified as two integers. Example: 308 308. 
 - --epochs (int): The number of training epochs. This determines how many times the model will pass through the entire training dataset. Example: 50. 
@@ -39,8 +40,6 @@ There are some more unnamed parameters for training like the learning rate and b
 
 ## Results
 TODO
-
-
 
 
 ## References

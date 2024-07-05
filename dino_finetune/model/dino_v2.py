@@ -3,10 +3,11 @@ from typing import Optional
 
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 
 from .lora import LoRA
 from .linear_decoder import LinearClassifier
-from .uper_decoder import UperDecoder
+from .fpn_decoder import FPNDecoder
 
 
 class DINOV2EncoderLoRA(nn.Module):
@@ -18,7 +19,7 @@ class DINOV2EncoderLoRA(nn.Module):
         emb_dim: int = 1024,
         n_classes: int = 1000,
         use_lora: bool = False,
-        use_uper: bool = False,
+        use_fpn: bool = False,
         img_dim: tuple[int, int] = (520, 520),
     ):
         super().__init__()
@@ -31,8 +32,8 @@ class DINOV2EncoderLoRA(nn.Module):
         self.use_lora = use_lora
 
         # Number of previous layers to use as input
-        self.uper_dim = 4
-        self.use_uper = use_uper
+        self.inter_layers = 4
+        self.use_fpn = use_fpn
 
         self.encoder = encoder
         for param in self.encoder.parameters():
@@ -41,9 +42,10 @@ class DINOV2EncoderLoRA(nn.Module):
 
         # Decoder
         # Patch size is given by (490/14)**2 = 35 * 35
-        if self.use_uper:
-            self.decoder = UperDecoder(
-                [emb_dim] * self.uper_dim,
+        if self.use_fpn:
+            self.decoder = FPNDecoder(
+                emb_dim,
+                inter_layers=self.inter_layers,
                 out_channels=128,
                 patch_h=int(img_dim[0] / encoder.patch_size),
                 patch_w=int(img_dim[1] / encoder.patch_size),
@@ -96,12 +98,12 @@ class DINOV2EncoderLoRA(nn.Module):
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
 
-        # If the uperNet decoder is used, we take the n last layers for
+        # If the FPN decoder is used, we take the n last layers for
         # our decoder to get a better segmentation result.
-        if self.use_uper:
+        if self.use_fpn:
             # Potentially even better to take a different depths
             feature = self.encoder.get_intermediate_layers(
-                x, n=self.uper_dim, reshape=True
+                x, n=self.inter_layers, reshape=True
             )
             logits = self.decoder(feature)
 
@@ -112,7 +114,7 @@ class DINOV2EncoderLoRA(nn.Module):
             patch_embeddings = feature["x_norm_patchtokens"]
             logits = self.decoder(patch_embeddings)
 
-        logits = nn.functional.interpolate(
+        logits = F.interpolate(
             logits,
             size=x.shape[2:],
             mode="bilinear",

@@ -50,7 +50,7 @@ def finetune_dino(config: argparse.Namespace, encoder: nn.Module):
         img_dim=config.img_dim,
         n_classes=config.n_classes,
         use_lora=config.use_lora,
-        use_uper=config.use_uper,
+        use_fpn=config.use_fpn,
     ).cuda()
 
     if config.lora_weights:
@@ -132,9 +132,9 @@ if __name__ == "__main__":
         help="Use Low-Rank Adaptation (LoRA) to finetune",
     )
     parser.add_argument(
-        "--use_uper",
+        "--use_fpn",
         action="store_true",
-        help="Use the UperNet head for finetuning",
+        help="Use the FPN decoder for finetuning",
     )
     parser.add_argument(
         "--img_dim",
