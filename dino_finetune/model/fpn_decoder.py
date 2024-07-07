@@ -77,7 +77,6 @@ class FPNDecoder(nn.Module):
         inter_fpn = self.inter_conv2(features[1])
         x = x + F.interpolate(inter_fpn, size=x.shape[-2:], mode="nearest")
         x = self.conv4(x)
-        x = self.upsample(x)
 
         inter_fpn = self.inter_conv3(features[2])
         x = x + F.interpolate(inter_fpn, size=x.shape[-2:], mode="nearest")

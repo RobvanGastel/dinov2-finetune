@@ -1,3 +1,5 @@
+from typing import Optional
+
 import torch
 import numpy as np
 import matplotlib.pyplot as plt
@@ -7,7 +9,7 @@ def visualize_overlay(
     images: torch.Tensor,
     masks: torch.Tensor,
     n_classes: int,
-    filename="viz",
+    filename: Optional[str | None] = None,
 ) -> None:
     colormap = plt.colormaps["tab20"]
     colors = np.array([colormap(i / n_classes) for i in range(n_classes)])[:, :3] * 255
@@ -17,8 +19,13 @@ def visualize_overlay(
 
     mask = np.argmax(mask, axis=0)  # (H, W)
     img = (img - img.min()) / (img.max() - img.min())
+    overlayed_img = 0.5 * img + 0.5 * colors[mask] / 255.0
 
-    plt.imshow(0.5 * img + 0.5 * colors[mask] / 255.0)
-    plt.axis("off")
-    plt.savefig(f"{filename}.png")
-    plt.close()
+    if filename:
+        plt.imshow(overlayed_img)
+        plt.axis("off")
+        plt.savefig(f"{filename}.png")
+        plt.close()
+
+    else:
+        return overlayed_img

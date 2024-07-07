@@ -11,6 +11,7 @@ import albumentations as A
 from torch.utils.data import Dataset, DataLoader
 from torchvision.datasets import VOCSegmentation
 
+from .corruption import get_corruption_transforms
 
 VOC_COLORMAP = [
     [0, 0, 0],
@@ -88,7 +89,6 @@ class PascalVOCDataset(VOCSegmentation):
             image = transformed["image"]
             mask = transformed["mask"]
 
-        mask = np.moveaxis(mask, -1, 0)
         image = np.moveaxis(image, -1, 0) / 255
         return image, mask
 
@@ -157,6 +157,7 @@ def get_dataloader(
     dataset_name: str,
     img_dim: tuple[int, int] = (490, 490),
     batch_size: int = 6,
+    corruption_severity: int = None,
 ) -> tuple[DataLoader, DataLoader]:
     assert dataset_name in ["ade20k", "voc"], "dataset name not in [ade20k, voc]"
     transform = A.Compose([A.Resize(height=img_dim[0], width=img_dim[1])])
@@ -169,6 +170,9 @@ def get_dataloader(
             download=False,
             transform=transform,
         )
+
+        if corruption_severity is not None:
+            transform = get_corruption_transforms(img_dim, corruption_severity)
         val_dataset = PascalVOCDataset(
             root="./data",
             year="2012",
@@ -183,6 +187,8 @@ def get_dataloader(
             transform=transform,
         )
 
+        if corruption_severity is not None:
+            transform = get_corruption_transforms(img_dim, corruption_severity)
         val_dataset = ADE20kDataset(
             root="./data",
             split="validation",
