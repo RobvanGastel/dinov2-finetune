@@ -15,7 +15,6 @@ class DINOV2EncoderLoRA(nn.Module):
         self,
         encoder,
         r: int = 4,
-        n: Optional[int] = None,
         emb_dim: int = 1024,
         n_classes: int = 1000,
         use_lora: bool = False,
@@ -26,7 +25,6 @@ class DINOV2EncoderLoRA(nn.Module):
         assert img_dim[0] % encoder.patch_size == 0, "Wrong input shape for patches"
         assert r > 0
 
-        self.n = n
         self.emb_dim = emb_dim
         self.img_dim = img_dim
         self.use_lora = use_lora

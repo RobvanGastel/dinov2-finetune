@@ -45,7 +45,6 @@ def finetune_dino(config: argparse.Namespace, encoder: nn.Module):
     dino_lora = DINOV2EncoderLoRA(
         encoder=encoder,
         r=config.r,
-        n=config.n,
         emb_dim=config.emb_dim,
         img_dim=config.img_dim,
         n_classes=config.n_classes,
@@ -184,12 +183,6 @@ if __name__ == "__main__":
         "large": "vitl14_reg",
         "giant": "vitg14_reg",
     }
-    intermediate_layers = {
-        "small": [2, 5, 8, 11],
-        "base": [2, 5, 8, 11],
-        "large": [4, 11, 17, 23],
-        "giant": [9, 19, 29, 39],
-    }
     embedding_dims = {
         "small": 384,
         "base": 768,
@@ -197,9 +190,6 @@ if __name__ == "__main__":
         "giant": 1536,
     }
     config.emb_dim = embedding_dims[config.size]
-
-    # TODO: Only with multiscale decoder heads
-    config.n = intermediate_layers[config.size]
 
     # Dataset
     dataset_classes = {
