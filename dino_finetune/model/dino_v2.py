@@ -36,7 +36,6 @@ class DINOV2EncoderLoRA(nn.Module):
         self.encoder = encoder
         for param in self.encoder.parameters():
             param.requires_grad = False
-        self.lora_layers = list(range(len(self.encoder.blocks)))
 
         # Decoder
         # Patch size is given by (490/14)**2 = 35 * 35
@@ -59,6 +58,7 @@ class DINOV2EncoderLoRA(nn.Module):
 
         # Add LoRA layers to the encoder
         if self.use_lora:
+            self.lora_layers = list(range(len(self.encoder.blocks)))
             self.w_a = []
             self.w_b = []
 
@@ -159,5 +159,4 @@ class DINOV2EncoderLoRA(nn.Module):
         decoder_head_keys = [k for k in decoder_head_dict.keys()]
         decoder_state_dict = {k: state_dict[k] for k in decoder_head_keys}
 
-        decoder_head_dict.update(decoder_state_dict)
-        self.decoder.load_state_dict(decoder_head_dict)
+        self.decoder.load_state_dict(decoder_state_dict)

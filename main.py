@@ -32,9 +32,8 @@ def validate_epoch(
             loss = criterion(logits, masks)
             val_loss += loss.item()
 
-            y_hat = torch.softmax(logits, dim=1)
-            y_hat = torch.argmax(y_hat, dim=1)
-            iou_score = f_iou(y_hat, masks.int())
+            y_hat = torch.sigmoid(logits)
+            iou_score = f_iou(y_hat, masks)
             val_iou += iou_score.item()
 
     metrics["val_loss"].append(val_loss / len(val_loader))
@@ -62,7 +61,10 @@ def finetune_dino(config: argparse.Namespace, encoder: nn.Module):
     # Finetuning for segmentation
     criterion = nn.CrossEntropyLoss(ignore_index=255).cuda()
     f_iou = IoU(
-        task="multiclass", num_classes=config.n_classes, ignore_index=255
+        task="multiclass",
+        num_classes=config.n_classes,
+        ignore_index=255,
+        average="micro",
     ).cuda()
     optimizer = optim.AdamW(dino_lora.parameters(), lr=config.lr)
 
@@ -88,19 +90,24 @@ def finetune_dino(config: argparse.Namespace, encoder: nn.Module):
             optimizer.step()
 
         if epoch % 1 == 0:
-            visualize_overlay(
-                images, torch.sigmoid(logits), config.n_classes, filename=f"viz_{epoch}"
-            )
+            y_hat = torch.sigmoid(logits)
             validate_epoch(dino_lora, val_loader, criterion, f_iou, metrics)
+            dino_lora.save_parameters(f"output/{config.exp_name}.pt")
+
+            if config.debug:
+                # Visualize some of the batch and write to files when debugging
+                visualize_overlay(
+                    images, y_hat, config.n_classes, filename=f"viz_{epoch}"
+                )
+
             logging.info(
                 f"Epoch: {epoch} - val IoU: {metrics['val_iou'][-1]} "
                 f"- val loss {metrics['val_loss'][-1]}"
             )
 
-    # Log metrics & save model
+    # Log metrics & save model the final values
     # Saves only loRA parameters and classifer
     dino_lora.save_parameters(f"output/{config.exp_name}.pt")
-
     with open(f"output/{config.exp_name}_metrics.json", "w") as f:
         json.dump(metrics, f)
 
@@ -112,6 +119,11 @@ if __name__ == "__main__":
         type=str,
         default="lora",
         help="Experiment name",
+    )
+    parser.add_argument(
+        "--debug",
+        action="store_true",
+        help="Debug by visualizing some of the outputs to file for a sanity check",
     )
     parser.add_argument(
         "--r",
