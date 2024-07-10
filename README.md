@@ -48,12 +48,12 @@ There are some more unnamed parameters for training like the learning rate and b
 
 ## Results
 
-**Pascal VOC**
-I achieve a validation mean IoU of approximately 95% using LoRA and a 1x1 convolution decoder. When applying ImageNet-C corruptions (Hendrycks & Dietterich, 2019) to test robustness, the validation mean IoU drops to 88% with corruption severity level 5 (the maximum). The qualitative performance of this network is illustrated in the figure below. Based on their qualitative and quantitative performance, these pre-trained weights handle image corruptions effectively.
+**Pascal VOC** \
+I achieve a validation mean IoU of approximately 85.2% using LoRA and a 1x1 convolution decoder. When applying ImageNet-C corruptions (Hendrycks & Dietterich, 2019) to test robustness on Pascal VOC, the validation mean IoU drops to 72.2% with corruption severity level 5 (the maximum). The qualitative performance of this network is illustrated in the figure below. Based on their qualitative and quantitative performance, these pre-trained weights handle image corruptions effectively.
 
 ![](/assets/examples/voc_corruption_performance.png?raw=true)
 
-You can use the pre-trained weights using the `--lora_weights` flag or just using the `load_parameters` function call. Registers here mean that extra context global context tokens are learned, see the second reference.
+You can use the pre-trained weights using the `--lora_weights` flag or just using the `load_parameters` function call. Registers here mean that extra context global context tokens are learned, see the second reference. All models are finetuned for a 100 epochs.
 
 
 <table style="margin: auto">
@@ -64,6 +64,7 @@ You can use the pre-trained weights using the `--lora_weights` flag or just usin
       <th># of<br />params</th>
       <th>with<br />registers</th>
       <th>Pascal VOC<br />Validation mIoU</th>
+      <th>Pascal VOC-C<br />level 5<br />Validation mIoU</th>
       <th>Directory</th>
     </tr>
   </thead>
@@ -73,32 +74,38 @@ You can use the pre-trained weights using the `--lora_weights` flag or just usin
       <td>ViT-L/14 distilled</td>
       <td align="right">300 M</td>
       <td align="center">✅</td>
-      <td align="right">88.2%</td>
-      <td>outputs/base_voc_no_lora.pt</td>
+      <td align="right">70.9%</td>
+      <td align="right">66.6%</td>
+      <td>output/base_voc_no_lora.pt</td>
     </tr>
     <tr>
       <td>LoRA + 1x1 Conv decoder</td>
       <td>ViT-L/14 distilled</td>
       <td align="right">300 M</td>
       <td align="center">✅</td>
-      <td align="right">95.3%</td>
-      <td>outputs/base_voc.pt</td>
+      <td align="right">85.2%</td>
+      <td align="right">72.2%</td>
+      <td>output/base_voc.pt</td>
     </tr>
     <tr>
       <td>LoRA + FPN decoder</td>
       <td>ViT-L/14 distilled</td>
       <td align="right">300 M</td>
       <td align="center">✅</td>
-      <td align="right">88.9%</td>
-      <td>outputs/base_voc_fpn.pt</td>
+      <td align="right">74.1%</td>
+      <td align="right">65.6%</td>
+      <td>output/base_voc_fpn.pt</td>
     </tr>
   </tbody>
 </table>
 
 <br />
 
-**ADE20k**
-TODO
+**ADE20k** \
+I achieve a validation mean IoU of approximately 62.2% using LoRA and a 1x1 convolution decoder. With ADE20k-C with corruption severity level 5, the validation mean IoU drops to 55.8%. The qualitative performance of this network is illustrated in the figure below. 
+
+![](/assets/examples/ade20k_corruption_performance.png?raw=true)
+
 
 
 <table style="margin: auto">
@@ -109,6 +116,7 @@ TODO
       <th># of<br />params</th>
       <th>with<br />registers</th>
       <th>ADE20k<br />Validation mIoU</th>
+      <th>ADE20k-C<br />level 5<br />Validation mIoU</th>
       <th>Directory</th>
     </tr>
   </thead>
@@ -118,24 +126,27 @@ TODO
       <td>ViT-L/14 distilled</td>
       <td align="right">300 M</td>
       <td align="center">✅</td>
-      <td align="right">-</td>
-      <td>-</td>
+      <td align="right">57.2%</td>
+      <td align="right">54.4%</td>
+      <td>output/base_ade20k_no_lora.pt</td>
     </tr>
     <tr>
       <td>LoRA + 1x1 Conv decoder</td>
       <td>ViT-L/14 distilled</td>
       <td align="right">300 M</td>
       <td align="center">✅</td>
-      <td align="right">-</td>
-      <td>-</td>
+      <td align="right">62.2%</td>
+      <td align="right">55.8%</td>
+      <td>output/base_ade20k_lora.pt</td>
     </tr>
     <tr>
       <td>LoRA + FPN decoder</td>
       <td>ViT-L/14 distilled</td>
       <td align="right">300 M</td>
       <td align="center">✅</td>
-      <td align="right">-</td>
-      <td>-</td>
+      <td align="right">62.0%</td>
+      <td align="right">54.7%</td>
+      <td>output/base_ade20k_fpn.pt</td>
     </tr>
   </tbody>
 </table>
