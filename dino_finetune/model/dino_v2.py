@@ -14,13 +14,26 @@ class DINOV2EncoderLoRA(nn.Module):
     def __init__(
         self,
         encoder,
-        r: int = 4,
+        r: int = 3,
         emb_dim: int = 1024,
         n_classes: int = 1000,
         use_lora: bool = False,
         use_fpn: bool = False,
         img_dim: tuple[int, int] = (520, 520),
     ):
+        """The DINOv2 encoder-decoder model for finetuning to downstream tasks.
+
+        Args:
+            encoder (nn.Module): The ViT encoder model loaded with the DINOv2 model weights.
+            r (int, optional): The rank parameter of the LoRA weights. Defaults to 3.
+            emb_dim (int, optional): The embedding dimension of the encoder. Defaults to 1024.
+            n_classes (int, optional): The number of classes to output. Defaults to 1000.
+            use_lora (bool, optional): Determines whether to use LoRA. Defaults to False.
+            use_fpn (bool, optional): Determines whether to use the FPN decoder. Defaults to
+                False.
+            img_dim (tuple[int, int], optional): The input image dimension. Defaults to
+                (520, 520).
+        """
         super().__init__()
         assert img_dim[0] % encoder.patch_size == 0, "Wrong input shape for patches"
         assert r > 0

@@ -1,22 +1,24 @@
 import json
 import logging
 import argparse
-from typing import Callable
 
 import torch
 import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import DataLoader
-from torchmetrics.classification import JaccardIndex as IoU
 
-from dino_finetune import DINOV2EncoderLoRA, get_dataloader, visualize_overlay
+from dino_finetune import (
+    DINOV2EncoderLoRA,
+    get_dataloader,
+    visualize_overlay,
+    compute_iou_metric,
+)
 
 
 def validate_epoch(
     dino_lora: nn.Module,
     val_loader: DataLoader,
     criterion: nn.CrossEntropyLoss,
-    f_iou: Callable,
     metrics: dict,
 ) -> None:
     val_loss = 0.0
@@ -33,7 +35,7 @@ def validate_epoch(
             val_loss += loss.item()
 
             y_hat = torch.sigmoid(logits)
-            iou_score = f_iou(y_hat, masks)
+            iou_score = compute_iou_metric(y_hat, masks, ignore_index=255)
             val_iou += iou_score.item()
 
     metrics["val_loss"].append(val_loss / len(val_loader))
@@ -60,12 +62,6 @@ def finetune_dino(config: argparse.Namespace, encoder: nn.Module):
 
     # Finetuning for segmentation
     criterion = nn.CrossEntropyLoss(ignore_index=255).cuda()
-    f_iou = IoU(
-        task="multiclass",
-        num_classes=config.n_classes,
-        ignore_index=255,
-        average="micro",
-    ).cuda()
     optimizer = optim.AdamW(dino_lora.parameters(), lr=config.lr)
 
     # Log training and validation metrics
@@ -89,9 +85,9 @@ def finetune_dino(config: argparse.Namespace, encoder: nn.Module):
             loss.backward()
             optimizer.step()
 
-        if epoch % 1 == 0:
+        if epoch % 5 == 0:
             y_hat = torch.sigmoid(logits)
-            validate_epoch(dino_lora, val_loader, criterion, f_iou, metrics)
+            validate_epoch(dino_lora, val_loader, criterion, metrics)
             dino_lora.save_parameters(f"output/{config.exp_name}.pt")
 
             if config.debug:

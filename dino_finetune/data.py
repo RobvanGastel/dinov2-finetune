@@ -159,6 +159,19 @@ def get_dataloader(
     batch_size: int = 6,
     corruption_severity: int = None,
 ) -> tuple[DataLoader, DataLoader]:
+    """Get the dataloaders for Pascal VOC (voc) or ADE20k (ade20k)
+
+    Args:
+        dataset_name (str): The name of the dataset either, `voc` or `ade20k`.
+        img_dim (tuple[int, int], optional): The input size of the images.
+            Defaults to (490, 490).
+        batch_size (int, optional): The batch size of the dataloader. Defaults to 6.
+        corruption_severity (int, optional): The corruption severity level between 1 and 5.
+            Defaults to None.
+
+    Returns:
+        tuple[DataLoader, DataLoader]: The train and validation loader respectively.
+    """
     assert dataset_name in ["ade20k", "voc"], "dataset name not in [ade20k, voc]"
     transform = A.Compose([A.Resize(height=img_dim[0], width=img_dim[1])])
 
@@ -195,6 +208,12 @@ def get_dataloader(
             transform=transform,
         )
 
-    train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
+    train_loader = DataLoader(
+        train_dataset,
+        batch_size=batch_size,
+        num_workers=32,
+        persistent_workers=True,
+        shuffle=True,
+    )
     val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False)
     return train_loader, val_loader

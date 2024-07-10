@@ -10,6 +10,16 @@ class LinearClassifier(nn.Module):
         patch_w: int = 35,
         n_classes: int = 1000,
     ):
+        """The 1x1 convolution decoder
+
+        Args:
+            channels (int): Number of input channels
+            patch_h (int, optional): The height patch size, essentially
+                image height // patch size of the encoder. Defaults to 35.
+            patch_w (int, optional): The width patch size, essentially
+                image width // patch size of the encoder. Defaults to 35.
+            n_classes (int, optional): Number of output classes. Defaults to 1000.
+        """
         super().__init__()
         self.width = patch_w
         self.height = patch_h
