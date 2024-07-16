@@ -189,7 +189,7 @@ def get_dataloader(
         val_dataset = PascalVOCDataset(
             root="./data",
             year="2012",
-            image_set="train",
+            image_set="val",
             download=False,
             transform=transform,
         )
