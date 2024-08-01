@@ -11,6 +11,12 @@ Check out the `Explanation.ipynb` notebook for a more detailed walkthrough of th
 
 ![](/assets/examples/pca.png?raw=true)
 
+Additionally, I tested a more recent paper, FeatUp, which not only uses PCA but also upsamples the embeddings in the feature space, producing higher resolution output.
+
+
+https://github.com/user-attachments/assets/89dfae81-2c21-48bc-8877-87d8b732f9f0
+
+
 ## Setup
 Install the packages using the `requirements.txt` file.
 
@@ -20,6 +26,20 @@ conda create --name dino python=3.11
 conda activate dino
 # Install the package for dino_finetune imports,
 pip install -e .
+```
+
+Special dependency if you want to investigate the encoder features in higher resolution using [FeatUp](https://github.com/mhamilton723/FeatUp). I recreated methods to process videos and images in the notebook `Embedding_visualization.ipynb`. To run it yourself in the notebook you need to install the FeatUp directory, and as it uses a custom kernel you need to make sure all the CUDA environment variables are configured properly.
+```bash
+# For CUDA_HOME/nvcc, make sure you install the cudatoolkit-dev tools
+conda install -c conda-forge cudatoolkit-dev -y
+# Now you should be able to run, 
+nvcc -V
+# So you can set the CUDA_HOME path
+export CUDA_HOME=$CONDA_PREFIX
+# For the LD_LIBRARY_PATH install cudnn
+conda install -c conda-forge cudnn
+# And set the variable
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/home/rob/miniconda3/envs/dino/lib
 ```
 
 In the section below I explain all the flags used in the `main.py` to finetune to different datasets.
