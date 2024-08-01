@@ -11,6 +11,10 @@ Check out the `Explanation.ipynb` notebook for a more detailed walkthrough of th
 
 ![](/assets/examples/pca.png?raw=true)
 
+
+https://github.com/RobvanGastel/dinov2-finetune/blob/main/assets/examples/output.mp4
+
+
 ## Setup
 Install the packages using the `requirements.txt` file.
 
