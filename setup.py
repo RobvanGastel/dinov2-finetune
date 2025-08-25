@@ -5,7 +5,7 @@ with open("requirements.txt") as f:
 
 setup(
     name="dino_finetune",
-    version="0.1.0",
+    version="0.1.1",
     packages=find_packages(),
     url="https://github.com/robvangastel/dinov2-finetune",
     license="",
@@ -16,7 +16,7 @@ setup(
         ]
     },
     author="Rob van Gastel",
-    description="A package for finetuning DinoV2 models with Low Rank Adaptation (LoRA).",
+    description="A package for finetuning DINOv2, DINOv3 models with Low Rank Adaptation (LoRA).",
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",

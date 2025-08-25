@@ -1,5 +1,4 @@
 import math
-from typing import Optional
 
 import torch
 import torch.nn as nn
@@ -10,7 +9,7 @@ from .linear_decoder import LinearClassifier
 from .fpn_decoder import FPNDecoder
 
 
-class DINOV2EncoderLoRA(nn.Module):
+class DINOEncoderLoRA(nn.Module):
     def __init__(
         self,
         encoder,

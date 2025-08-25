@@ -8,7 +8,7 @@ import torch.optim as optim
 from torch.utils.data import DataLoader
 
 from dino_finetune import (
-    DINOV2EncoderLoRA,
+    DINOEncoderLoRA,
     get_dataloader,
     visualize_overlay,
     compute_iou_metric,
@@ -43,7 +43,7 @@ def validate_epoch(
 
 
 def finetune_dino(config: argparse.Namespace, encoder: nn.Module):
-    dino_lora = DINOV2EncoderLoRA(
+    dino_lora = DINOEncoderLoRA(
         encoder=encoder,
         r=config.r,
         emb_dim=config.emb_dim,
@@ -131,7 +131,13 @@ if __name__ == "__main__":
         "--size",
         type=str,
         default="large",
-        help="DINOv2 backbone parameter [small, base, large, giant]",
+        help="DINOv2, DINOv3 backbone parameter [small, base, large, giant]",
+    )
+    parser.add_argument(
+        "--dino_type",
+        type=str,
+        default="dinov3",
+        help="Either [dinov2, dinov3], defaults to DINOv3",
     )
     parser.add_argument(
         "--use_lora",
@@ -184,31 +190,30 @@ if __name__ == "__main__":
     )
     config = parser.parse_args()
 
-    # All backbone sizes and configurations
-    backbones = {
-        "small": "vits14_reg",
-        "base": "vitb14_reg",
-        "large": "vitl14_reg",
-        "giant": "vitg14_reg",
-    }
-    embedding_dims = {
-        "small": 384,
-        "base": 768,
-        "large": 1024,
-        "giant": 1536,
-    }
-    config.emb_dim = embedding_dims[config.size]
-
-    # Dataset
-    dataset_classes = {
-        "voc": 21,
-        "ade20k": 150,
-    }
+    # Dataset configuration
+    dataset_classes = {"voc": 21, "ade20k": 150}
     config.n_classes = dataset_classes[config.dataset]
 
-    encoder = torch.hub.load(
-        repo_or_dir="facebookresearch/dinov2",
-        model=f"dinov2_{backbones[config.size]}",
-    ).cuda()
+    # Model configuration
+    config.patch_size = 16 if config.dino_type == "dinov3" else 14
+    backbones = {
+        "small": f"{config.dino_type}_vits{config.patch_size}{'_reg' if config.dino_type == 'dinov2' else ''}",
+        "base": f"{config.dino_type}_vitb{config.patch_size}{'_reg' if config.dino_type == 'dinov2' else ''}",
+        "large": f"{config.dino_type}_vitl{config.patch_size}{'_reg' if config.dino_type == 'dinov2' else ''}",
+        "giant": f"{config.dino_type}_vitg{config.patch_size}{'_reg' if config.dino_type == 'dinov2' else ''}",
+    }
 
+    encoder = torch.hub.load(
+        repo_or_dir=f"facebookresearch/{config.dino_type}",
+        model=backbones[config.size],
+    ).cuda()
+    config.emb_dim = encoder.num_features
+
+    if config.img_dim[0] % config.patch_size != 0 or config.img_dim[1] % config.patch_size != 0:
+        logging.info(f"The image size ({config.img_dim}) should be divisible "
+            f"by the patch size {config.patch_size}.")
+        # subtract the difference from image size and set a new size.
+        config.img_dim = (config.img_dim[0] - config.img_dim[0] % config.patch_size,
+                          config.img_dim[1] - config.img_dim[1] % config.patch_size)
+        logging.info(f"The image size is lowered to ({config.img_dim}).")
     finetune_dino(config, encoder)

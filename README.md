@@ -1,4 +1,6 @@
-# Finetuning DINOv2 with LoRA for Image Segmentation
+**[2025-08-25] Added the ability to finetune DINOv3 encoders!**
+
+# Finetuning DINOv2, DINOv3 with LoRA for Image Segmentation
 
 <p>
     <a href= "https://colab.research.google.com/github/RobvanGastel/dinov2-finetune/blob/main/Explanation.ipynb">
@@ -48,7 +50,7 @@ In the section below I explain all the flags used in the `main.py` to finetune t
 An example to run finetuning on the VOC dataset with LoRA and an FPN decoder.
 
 ```bash
-python main.py --exp_name base_voc --dataset voc --size base --use_lora --img_dim 308 308 --epochs 50 --use_fpn
+python main.py --exp_name base_voc --dataset voc --size base --dino_type dinov3 --img_dim 308 308 --epochs 50 --use_fpn
 ```
 
 **Flags**
@@ -59,6 +61,7 @@ Some explanation of the more useful flags to use when running experiments.
 - --size (str): The size configuration for the DINOv2 backbone parameter `small`, `base`, `large`, or `giant`
 - --r (int): the LoRA rank (r) parameter to determine the amount of parameters. Usually, a small value like 3-9.
 - --use_lora (flag): A boolean flag indicating whether to use Low-Rank Adaptation (LoRA). If this flag is present, LoRA is used. 
+- --dino_type (str): Pass the DINO version to use either dinov2, or dinov3.
 - --use_fpn (flag): A boolean flag to indicate whether to use the FPN decoder.
 - --lora_weights (str): Path to the file location to load the LoRA weights and decoder head from.
 - --img_dim (tuple of int): The dimensions of the input images (height width). This should be specified as two integers. Example: 308 308. 
