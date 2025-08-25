@@ -22,6 +22,9 @@ class LoRA(nn.Module):
         self.dim = qkv.in_features
         self.w_identity = torch.eye(self.dim)
 
+        self.in_features = qkv.in_features
+        self.out_features = qkv.out_features
+
     def forward(self, x) -> torch.Tensor:
         # Compute the original qkv
         qkv = self.qkv(x)  # Shape: (B, N, 3 * org_C)
