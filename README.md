@@ -7,10 +7,14 @@
     <img src="https://colab.research.google.com/assets/colab-badge.svg"/></a>
 </p>
 
-This repository explores finetuning the DINOv2 (Oquab et al., 2024) encoder weights using Low-Rank Adaptation (Hu et al., 2021) (LoRA) and a simple 1x1 convolution decoder. LoRA makes it possible to finetune to new tasks easier without adjusting the original encoder weights by adding a small set of weights between each encoder block. The DINOv2 encoder weights are learned by self-supervised learning and accurately capture the natural image domain. For example, by applying PCA to the outputs of the encoders, we can get a coarse segmentation of the objects in the image and see semantically similar objects colored in the same color.
+This repository explores finetuning DINOv3 (Siméoni et al., 2025) or DINOv2 (Oquab et al., 2024) encoder weights using Low-Rank Adaptation (Hu et al., 2021) (LoRA) and a simple 1x1 convolution decoder. LoRA makes it possible to finetune to new tasks easier without adjusting the original encoder weights by adding a small set of weights between each encoder block. The DINOv2, DINOv3 encoder weights are learned by self-supervised learning and accurately capture the natural image domain. For example, by applying PCA to the outputs of the encoders, we can get a coarse segmentation of the objects in the image and see semantically similar objects colored in the same color.
 
 Check out the `Explanation.ipynb` notebook for a more detailed walkthrough of the code and ideas behind it.
 
+**DINOv3.** Les noise is visible when comparing the PCA outputs from DINOv3 versus the previous DINOv2.
+![](/assets/examples/pca_dinov3.png?raw=true)
+
+**DINOv2.**
 ![](/assets/examples/pca.png?raw=true)
 
 Additionally, I tested a more recent paper, FeatUp, which uses PCA and upsamples the embeddings in the feature space, producing higher-resolution output. See the `Embedding_visualization.ipynb`.
@@ -47,7 +51,7 @@ export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/home/rob/miniconda3/envs/dino/lib
 In the section below I explain all the flags used in the `main.py` to finetune to different datasets.
 
 ## Usage
-An example to run finetuning on the VOC dataset with LoRA and an FPN decoder.
+An example to run finetuning on the VOC dataset with LoRA and an FPN decoder, either DINOv3 or DINOv2.
 
 ```bash
 python main.py --exp_name base_voc --dataset voc --size base --dino_type dinov3 --img_dim 308 308 --epochs 50 --use_fpn
@@ -61,7 +65,7 @@ Some explanation of the more useful flags to use when running experiments.
 - --size (str): The size configuration for the DINOv2 backbone parameter `small`, `base`, `large`, or `giant`
 - --r (int): the LoRA rank (r) parameter to determine the amount of parameters. Usually, a small value like 3-9.
 - --use_lora (flag): A boolean flag indicating whether to use Low-Rank Adaptation (LoRA). If this flag is present, LoRA is used. 
-- --dino_type (str): Pass the DINO version to use either dinov2, or dinov3.
+- --dino_type (str): Pass the DINO version to use either `dinov2`, or `dinov3`.
 - --use_fpn (flag): A boolean flag to indicate whether to use the FPN decoder.
 - --lora_weights (str): Path to the file location to load the LoRA weights and decoder head from.
 - --img_dim (tuple of int): The dimensions of the input images (height width). This should be specified as two integers. Example: 308 308. 
@@ -72,7 +76,7 @@ There are some more unnamed parameters for training like the learning rate and b
 ## Results
 
 **Pascal VOC** \
-I achieve a validation mean IoU of approximately 85.2% using LoRA and a 1x1 convolution decoder. When applying ImageNet-C corruptions (Hendrycks & Dietterich, 2019) to test robustness on Pascal VOC, the validation mean IoU drops to 72.2% with corruption severity level 5 (the maximum). The qualitative performance of this network is illustrated in the figure below. Based on their qualitative and quantitative performance, these pre-trained weights handle image corruption effectively.
+**DINOv2.** I achieve a validation mean IoU of approximately 85.2% using LoRA and a 1x1 convolution decoder. When applying ImageNet-C corruptions (Hendrycks & Dietterich, 2019) to test robustness on Pascal VOC, the validation mean IoU drops to 72.2% with corruption severity level 5 (the maximum). The qualitative performance of this network is illustrated in the figure below. Based on their qualitative and quantitative performance, these pre-trained weights handle image corruption effectively.
 
 ![](/assets/examples/voc_corruption_performance.png?raw=true)
 
@@ -83,6 +87,7 @@ You can use the pre-trained weights using the `--lora_weights` flag or using the
   <thead>
     <tr>
       <th>finetuned components</th>
+      <th>pre-training</th>
       <th>model</th>
       <th># of<br />params</th>
       <th>with<br />registers</th>
@@ -94,7 +99,8 @@ You can use the pre-trained weights using the `--lora_weights` flag or using the
   <tbody>
     <tr>
       <td>1x1 Conv decoder</td>
-      <td>ViT-L/14 distilled</td>
+      <td>DINOv2</td>
+      <td>ViT-L/14</td>
       <td align="right">300 M</td>
       <td align="center">✅</td>
       <td align="right">70.9%</td>
@@ -102,8 +108,19 @@ You can use the pre-trained weights using the `--lora_weights` flag or using the
       <td>output/base_voc_no_lora.pt</td>
     </tr>
     <tr>
+      <td>1x1 Conv decoder</td>
+      <td>DINOv3</td>
+      <td>ViT-L/16</td>
+      <td align="right">-M</td>
+      <td align="center">✅</td>
+      <td align="right">-%</td>
+      <td align="right">-%</td>
+      <td></td>
+    </tr>
+    <tr>
       <td>LoRA + 1x1 Conv decoder</td>
-      <td>ViT-L/14 distilled</td>
+      <td>DINOv2</td>
+      <td>ViT-L/14</td>
       <td align="right">300 M</td>
       <td align="center">✅</td>
       <td align="right">85.2%</td>
@@ -112,7 +129,8 @@ You can use the pre-trained weights using the `--lora_weights` flag or using the
     </tr>
     <tr>
       <td>LoRA + FPN decoder</td>
-      <td>ViT-L/14 distilled</td>
+      <td>DINOv2</td>
+      <td>ViT-L/14</td>
       <td align="right">300 M</td>
       <td align="center">✅</td>
       <td align="right">74.1%</td>
@@ -125,16 +143,16 @@ You can use the pre-trained weights using the `--lora_weights` flag or using the
 <br />
 
 **ADE20k** \
-I achieve a validation mean IoU of approximately 62.2% using LoRA and a 1x1 convolution decoder. With ADE20k-C with corruption severity level 5, the validation mean IoU drops to 55.8%. The qualitative performance of this network is illustrated in the figure below. 
+**DINOv2.** I achieve a validation mean IoU of approximately 62.2% using LoRA and a 1x1 convolution decoder. With ADE20k-C with corruption severity level 5, the validation mean IoU drops to 55.8%. The qualitative performance of this network is illustrated in the figure below. 
 
 ![](/assets/examples/ade20k_corruption_performance.png?raw=true)
-
 
 
 <table style="margin: auto">
   <thead>
     <tr>
       <th>finetuned components</th>
+      <th>pre-training</th>
       <th>model</th>
       <th># of<br />params</th>
       <th>with<br />registers</th>
@@ -146,7 +164,8 @@ I achieve a validation mean IoU of approximately 62.2% using LoRA and a 1x1 conv
   <tbody>
     <tr>
       <td>1x1 Conv decoder</td>
-      <td>ViT-L/14 distilled</td>
+      <td>DINOv2</td>
+      <td>ViT-L/14</td>
       <td align="right">300 M</td>
       <td align="center">✅</td>
       <td align="right">57.2%</td>
@@ -154,8 +173,19 @@ I achieve a validation mean IoU of approximately 62.2% using LoRA and a 1x1 conv
       <td>output/base_ade20k_no_lora.pt</td>
     </tr>
     <tr>
+      <td>1x1 Conv decoder</td>
+      <td>DINOv3</td>
+      <td>ViT-L/16</td>
+      <td align="right">-M</td>
+      <td align="center">✅</td>
+      <td align="right">-%</td>
+      <td align="right">-%</td>
+      <td></td>
+    </tr>
+    <tr>
       <td>LoRA + 1x1 Conv decoder</td>
-      <td>ViT-L/14 distilled</td>
+      <td>DINOv2</td>
+      <td>ViT-L/14</td>
       <td align="right">300 M</td>
       <td align="center">✅</td>
       <td align="right">62.2%</td>
@@ -164,7 +194,8 @@ I achieve a validation mean IoU of approximately 62.2% using LoRA and a 1x1 conv
     </tr>
     <tr>
       <td>LoRA + FPN decoder</td>
-      <td>ViT-L/14 distilled</td>
+      <td>DINOv2</td>
+      <td>ViT-L/14</td>
       <td align="right">300 M</td>
       <td align="center">✅</td>
       <td align="right">62.0%</td>
@@ -179,14 +210,16 @@ I achieve a validation mean IoU of approximately 62.2% using LoRA and a 1x1 conv
 If you reference or use the codebase in your research, please cite:
 
 ```
-@article{2024dinov2_lora_seg,
-      title={Finetuning DINOv2 with LoRA for Image Segmentation},
+@misc{2024dinov2_lora_seg,
+      title={Finetuning DINOv2, DINOv3 with LoRA for Image Segmentation},
       author={Rob van Gastel},
       year={2024}
     }
 ```
 
 ## References
+Siméoni, O., Vo, H. V., Seitzer, M., Baldassarre, F., Oquab, M., Jose, C., Khalidov, V., Szafraniec, M., Yi, S., Ramamonjisoa, M., Massa, F., Haziza, D., Wehrstedt, L., Wang, J., Darcet, T., Moutakanni, T., Sentana, L., Roberts, C., Vedaldi, A., … Bojanowski, P. (2025). DINOv3 (No. arXiv:2508.10104). arXiv. https://doi.org/10.48550/arXiv.2508.10104
+
 Oquab, M., Darcet, T., Moutakanni, T., Vo, H., Szafraniec, M., Khalidov, V., Fernandez, P., Haziza, D., Massa, F., El-Nouby, A., Assran, M., Ballas, N., Galuba, W., Howes, R., Huang, P.-Y., Li, S.-W., Misra, I., Rabbat, M., Sharma, V., … Bojanowski, P. (2024). DINOv2: Learning Robust Visual Features without Supervision (arXiv:2304.07193). arXiv. http://arxiv.org/abs/2304.07193
 
 Darcet, T., Oquab, M., Mairal, J., & Bojanowski, P. (2024). Vision Transformers Need Registers (arXiv:2309.16588). arXiv. https://doi.org/10.48550/arXiv.2309.16588

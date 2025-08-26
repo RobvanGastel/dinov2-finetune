@@ -7,7 +7,7 @@ setup(
     name="dino_finetune",
     version="0.1.1",
     packages=find_packages(),
-    url="https://github.com/robvangastel/dinov2-finetune",
+    url="https://github.com/robvangastel/dinov3-finetune",
     license="",
     install_requires=install_requires,
     extras_require={
