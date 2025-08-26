@@ -14,14 +14,9 @@ Check out the `Explanation.ipynb` notebook for a more detailed walkthrough of th
 **DINOv3.** Les noise is visible when comparing the PCA outputs from DINOv3 versus the previous DINOv2.
 ![](/assets/examples/pca_dinov3.png?raw=true)
 
-**DINOv2.**
-![](/assets/examples/pca.png?raw=true)
+Previously DINOv2 could only produce high resolution PCA videos with FeatUp. But currently with DINOv3 we can scale to high resolution videos without FeatUp. See the `Embedding_visualization.ipynb`.
 
-Additionally, I tested a more recent paper, FeatUp, which uses PCA and upsamples the embeddings in the feature space, producing higher-resolution output. See the `Embedding_visualization.ipynb`.
-
-
-https://github.com/user-attachments/assets/89dfae81-2c21-48bc-8877-87d8b732f9f0
-
+https://github.com/user-attachments/assets/1e46e121-191e-4f36-8234-4e57cda41f32
 
 ## Setup
 Install the packages using the `requirements.txt` file.
