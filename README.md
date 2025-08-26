@@ -105,17 +105,17 @@ You can use the pre-trained weights using the `--lora_weights` flag or using the
       <td align="center">✅</td>
       <td align="right">70.9%</td>
       <td align="right">66.6%</td>
-      <td>output/base_voc_no_lora.pt</td>
+      <td>output/dinov2/base_voc_no_lora.pt</td>
     </tr>
     <tr>
-      <td>1x1 Conv decoder</td>
+      <td>LoRA + 1x1 Conv decoder</td>
       <td>DINOv3</td>
       <td>ViT-L/16</td>
-      <td align="right">-M</td>
+      <td align="right">300 M</td>
       <td align="center">✅</td>
+      <td align="right">77.6%</td>
       <td align="right">-%</td>
-      <td align="right">-%</td>
-      <td></td>
+      <td>output/dinov3/large_base_voc_lora.pt</td>
     </tr>
     <tr>
       <td>LoRA + 1x1 Conv decoder</td>
@@ -125,7 +125,7 @@ You can use the pre-trained weights using the `--lora_weights` flag or using the
       <td align="center">✅</td>
       <td align="right">85.2%</td>
       <td align="right">72.2%</td>
-      <td>output/base_voc.pt</td>
+      <td>output/dinov2/large_base_voc_lora.pt</td>
     </tr>
     <tr>
       <td>LoRA + FPN decoder</td>
@@ -135,7 +135,7 @@ You can use the pre-trained weights using the `--lora_weights` flag or using the
       <td align="center">✅</td>
       <td align="right">74.1%</td>
       <td align="right">65.6%</td>
-      <td>output/base_voc_fpn.pt</td>
+      <td>output/dinov2/large_voc_fpn.pt</td>
     </tr>
   </tbody>
 </table>
@@ -170,17 +170,17 @@ You can use the pre-trained weights using the `--lora_weights` flag or using the
       <td align="center">✅</td>
       <td align="right">57.2%</td>
       <td align="right">54.4%</td>
-      <td>output/base_ade20k_no_lora.pt</td>
+      <td>output/dinov2/large_ade20k_no_lora.pt</td>
     </tr>
     <tr>
-      <td>1x1 Conv decoder</td>
+      <td>LoRA + 1x1 Conv decoder</td>
       <td>DINOv3</td>
       <td>ViT-L/16</td>
-      <td align="right">-M</td>
+      <td align="right">300M</td>
       <td align="center">✅</td>
-      <td align="right">-%</td>
-      <td align="right">-%</td>
-      <td></td>
+      <td align="right">63.9%</td>
+      <td align="right">57.7%</td>
+      <td>output/dinov3/large_ade20k_lora.pt</td>
     </tr>
     <tr>
       <td>LoRA + 1x1 Conv decoder</td>
@@ -190,7 +190,7 @@ You can use the pre-trained weights using the `--lora_weights` flag or using the
       <td align="center">✅</td>
       <td align="right">62.2%</td>
       <td align="right">55.8%</td>
-      <td>output/base_ade20k_lora.pt</td>
+      <td>output/dinov2/large_ade20k_lora.pt</td>
     </tr>
     <tr>
       <td>LoRA + FPN decoder</td>
@@ -200,7 +200,7 @@ You can use the pre-trained weights using the `--lora_weights` flag or using the
       <td align="center">✅</td>
       <td align="right">62.0%</td>
       <td align="right">54.7%</td>
-      <td>output/base_ade20k_fpn.pt</td>
+      <td>output/dinov2/large_ade20k_fpn.pt</td>
     </tr>
   </tbody>
 </table>
