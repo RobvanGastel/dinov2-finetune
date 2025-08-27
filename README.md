@@ -1,4 +1,4 @@
-**[2025-08-27] Added DINOv3 weights to compare with DINOv2 experiments**
+**[2025-08-27] Added DINOv3 weights to compare with DINOv2 experiments** \
 **[2025-08-25] Added the ability to finetune DINOv3 encoders!**
 
 # Finetuning DINOv2, DINOv3 with LoRA for Image Segmentation
@@ -17,7 +17,12 @@ Check out the `Explanation.ipynb` notebook for a more detailed walkthrough of th
 
 Previously DINOv2 could only produce high resolution PCA videos with FeatUp. But currently with DINOv3 we can scale to high resolution videos without FeatUp. See the `Embedding_visualization.ipynb`.
 
-https://github.com/user-attachments/assets/1e46e121-191e-4f36-8234-4e57cda41f32
+
+
+
+https://github.com/user-attachments/assets/b8933113-8e75-4451-90ae-e4a0c14c2688
+
+
 
 ## Setup
 Install the packages using the `requirements.txt` file.
