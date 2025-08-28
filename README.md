@@ -19,8 +19,7 @@ Previously DINOv2 could only produce high resolution PCA videos with FeatUp. But
 
 
 
-
-https://github.com/user-attachments/assets/b8933113-8e75-4451-90ae-e4a0c14c2688
+https://github.com/user-attachments/assets/48222125-a826-4a15-badc-3454c1bcfe53
 
 
 
@@ -108,7 +107,7 @@ You can use the pre-trained weights using the `--lora_weights` flag or using the
       <td align="center">✅</td>
       <td align="right">67.1%</td>
       <td align="right">63.6%</td>
-      <td>output/dinov2/base_voc_no_lora.pt</td>
+      <td>output/dinov2/large_voc_no_lora.pt</td>
     </tr>
     <tr>
       <td>LoRA + 1x1 Conv decoder</td>
